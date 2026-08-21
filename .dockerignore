@@ -1,0 +1,25 @@
+.git
+.gitignore
+.vscode
+.idea
+__pycache__
+*.py[cod]
+*.pyo
+.pytest_cache
+.env
+.env.*
+.venv
+venv
+env
+*.md
+# Dados sensíveis / PII — nunca entram na imagem
+*.xlsx
+*.xls
+*.csv
+# Infra que não deve ir para dentro da imagem do app
+Dockerfile
+docker-compose.yml
+.dockerignore
+deploy
+tests
+requirements-dev.txt

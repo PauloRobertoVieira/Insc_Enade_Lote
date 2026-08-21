@@ -1,0 +1,58 @@
+services:
+  web:
+    build: .
+    container_name: Enade_Cadastro_Lote
+    # Bind apenas em localhost: a exposição pública deve passar pelo proxy (nginx).
+    # Para acesso direto na intranet, troque para "5000:5000".
+    ports:
+      - "127.0.0.1:5000:5000"
+    env_file:
+      - path: .env
+        required: false
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0) if urllib.request.urlopen('http://127.0.0.1:5000/health', timeout=3).status==200 else sys.exit(1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # Redis para rate limit compartilhado entre workers do Gunicorn.
+  # Necessário quando GUNICORN_WORKERS > 1 (ver RATE_LIMIT_STORAGE no .env).
+  # Ative com: docker compose --profile redis up -d
+  redis:
+    image: redis:7-alpine
+    container_name: Enade_Cadastro_Lote_Redis
+    profiles: ["redis"]
+    restart: unless-stopped
+    command: ["redis-server", "--save", "", "--appendonly", "no"]
+    security_opt:
+      - no-new-privileges:true
+
+  # Reverse proxy com TLS. Ative com: docker compose --profile proxy up -d
+  proxy:
+    image: nginx:1.27-alpine
+    container_name: Enade_Cadastro_Lote_Proxy
+    profiles: ["proxy"]
+    depends_on:
+      - web
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Monte aqui seus certificados (ex.: emitidos por Let's Encrypt/certbot):
+      - ./deploy/certs:/etc/nginx/certs:ro
+    restart: unless-stopped

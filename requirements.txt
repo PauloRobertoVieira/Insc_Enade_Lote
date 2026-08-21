@@ -1,0 +1,10 @@
+# Versões fixadas para builds reprodutíveis e auditáveis.
+# Atualize com cuidado e teste antes de subir em produção.
+pandas==2.2.2
+openpyxl==3.1.5
+flask==3.1.3  # PYSEC-2026-2151 corrigida a partir de 3.1.3 — ver pip-audit no CI
+gunicorn==22.0.0
+flask-limiter==3.8.0
+# Cliente usado apenas se RATE_LIMIT_STORAGE=redis://... for configurado
+# (necessário para rate limit consistente com GUNICORN_WORKERS > 1).
+redis==5.0.8

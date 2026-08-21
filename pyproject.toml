@@ -1,0 +1,34 @@
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+exclude = [".venv", "venv", "__pycache__"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle (erros)
+    "W",   # pycodestyle (avisos)
+    "F",   # pyflakes
+    "I",   # isort (ordenação de imports)
+    "UP",  # pyupgrade (idiomas modernos de Python)
+    "B",   # flake8-bugbear (armadilhas comuns)
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # linha longa — deixado a cargo do formatter, não bloqueia CI
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+
+[tool.mypy]
+python_version = "3.10"
+files = ["app", "web_app.py"]
+ignore_missing_imports = true
+warn_unused_ignores = true
+warn_redundant_casts = true
+check_untyped_defs = true
+# O projeto usa "from __future__ import annotations" e tipos simples;
+# strict=True hoje geraria ruído desproporcional em pandas/Flask sem tipos
+# completos. Este nível já pega erros reais (chamadas com tipos incompatíveis,
+# atributos inexistentes) sem exigir anotações em 100% do código.
+disallow_untyped_defs = false
