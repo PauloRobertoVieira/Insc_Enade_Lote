@@ -7,4 +7,4 @@ gunicorn==22.0.0
 flask-limiter==3.8.0
 # Cliente usado apenas se RATE_LIMIT_STORAGE=redis://... for configurado
 # (necessário para rate limit consistente com GUNICORN_WORKERS > 1).
-redis==5.0.8
+redis==8.1.0
