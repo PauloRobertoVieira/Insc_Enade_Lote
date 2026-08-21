@@ -1,4 +1,4 @@
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 # Não escreve .pyc, saída sem buffer, sem cache do pip.
 ENV PYTHONDONTWRITEBYTECODE=1 \
