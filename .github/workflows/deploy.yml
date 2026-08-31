@@ -1,0 +1,51 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY_HOMOLOG }}
+
+      - name: Add remote host to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H "${{ vars.SSH_HOST_HOMOLOG }}" >> ~/.ssh/known_hosts
+
+      - name: Sync files to server (rsync)
+        run: |
+          set -e
+          echo "Iniciando sync para o servidor..."
+          rsync -avz --rsync-path="sudo rsync" \
+            --delete \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.env' \
+            -e "ssh" \
+            ./ \
+            "${{ vars.SSH_USER_HOMOLOG }}@${{ vars.SSH_HOST_HOMOLOG }}:/data/docker/enade-cadastro-em-lote"
+          echo "Sync finalizado com sucesso."
+
+      - name: Deploy containers via SSH
+        run: |
+          ssh "${{ vars.SSH_USER_HOMOLOG }}@${{ vars.SSH_HOST_HOMOLOG }}" << 'EOF'
+            set -e
+            cd /data/docker/enade-cadastro-em-lote
+
+            docker compose down
+
+            docker compose up -d --build
+
+          EOF
