@@ -10,6 +10,8 @@ services:
       - VIRTUAL_HOST=enade-cadastro-em-lote.simapes.org.br
       - VIRTUAL_PORT=5000
       - LETSENCRYPT_HOST=enade-cadastro-em-lote.simapes.org.br
+    networks:
+      - proxy
     env_file:
       - path: .env
         required: false
@@ -60,3 +62,8 @@ services:
       # Monte aqui seus certificados (ex.: emitidos por Let's Encrypt/certbot):
       - ./deploy/certs:/etc/nginx/certs:ro
     restart: unless-stopped
+
+networks:
+  proxy:
+    name: proxy-net
+    external: true
